@@ -1,0 +1,24 @@
+# Python
+backend/.venv/
+backend/__pycache__/
+backend/**/*.pyc
+
+# Uploaded audio files
+backend/uploads/*
+
+# Node
+frontend/node_modules/
+
+# Environment variables / secrets
+.env
+backend/.env
+frontend/.env
+
+# Build files
+frontend/dist/
+
+# Editor / OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
