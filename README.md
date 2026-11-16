@@ -1,52 +1,44 @@
-# AI Meeting Assistant
+# MeetMind
 
-An AI-powered meeting assistant that will process meeting audio,
-generate transcripts, and provide useful meeting insights.
+MeetMind is a React and FastAPI project for meeting audio capture and follow-up. The frontend includes a public landing page, separate Admin and Assignee sign-in screens, a role preview, and a two-source browser capture interface.
 
-## Current Progress
+## Current implementation
 
-- React + Vite frontend setup
-- FastAPI backend setup
-- Frontend ↔ backend connection
-- CORS configured
-- Health check API
-- Meetings API
-- Audio file upload
-- Audio files saved locally
+- Frontend: React, TypeScript, Vite, and project CSS.
+- Backend: FastAPI.
+- `GET /health`: backend health check.
+- `GET /meetings`: currently a placeholder response; it does not list stored recordings.
+- `POST /meetings/upload`: stores an uploaded file in `backend/uploads` with a unique filename.
+- Browser capture records shared-tab audio and microphone audio independently. Both files are uploaded separately.
 
-## Tech Stack
+Authentication, account approval, database records, Whisper transcription, transcript synchronization, Groq analysis, task management, reminders, analytics, and automatic audio retention cleanup are not implemented by the backend yet. The sign-in fields stay disabled until an authentication API is available. The Admin/Assignee selector in the workspace is a UI preview only and does not enforce permissions.
 
-### Frontend
-- React
-- Vite
-- JavaScript
+Uploaded recordings remain on disk in `backend/uploads`; they are not deleted automatically. Do not upload sensitive recordings until retention controls are implemented.
 
-### Backend
-- Python
-- FastAPI
-- Uvicorn
+## Run locally
 
-### Planned AI Pipeline
-- Whisper → Speech-to-Text
-- LLM → Summary, decisions, action items
+Start the backend from `backend`:
 
-## Project Structure
+```powershell
+python -m pip install -r requirements.txt
+python -m uvicorn main:app --reload --host 127.0.0.1 --port 8000
+```
 
-```text
-AI Meeting Assistant/
-├── backend/
-│   ├── routes/
-│   │   ├── health.py
-│   │   └── meetings.py
-│   ├── uploads/
-│   ├── main.py
-│   └── requirements.txt
-│
-├── frontend/
-│   ├── src/
-│   │   └── App.jsx
-│   ├── package.json
-│   └── package-lock.json
-│
-├── .gitignore
-└── README.md
+Start the frontend from `frontend`:
+
+```powershell
+npm ci
+npm run dev
+```
+
+The frontend defaults to `http://localhost:8000` for the API. Set `VITE_API_BASE_URL` in a local frontend `.env` file to use a different backend URL.
+
+Browser tab audio capture requires a supported browser and a secure context such as `localhost`. Choose a browser tab and enable its audio sharing option. Headphones help prevent feedback.
+
+## Frontend checks
+
+```powershell
+npm run typecheck
+npm run lint
+npm run build
+```

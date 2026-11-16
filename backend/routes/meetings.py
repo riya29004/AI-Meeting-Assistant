@@ -1,6 +1,10 @@
+from pathlib import Path
+from uuid import uuid4
+
 from fastapi import APIRouter, UploadFile, File
 
 router = APIRouter()
+UPLOAD_DIR = Path(__file__).resolve().parent.parent / "uploads"
 
 
 @router.get("/meetings")
@@ -10,12 +14,16 @@ def get_meetings():
 
 @router.post("/meetings/upload")
 async def upload_meeting(file: UploadFile = File(...)):
-    upload_path = f"uploads/{file.filename}"
+    safe_name = Path(file.filename or "meeting-audio").name
+    stored_name = f"{uuid4().hex[:12]}-{safe_name}"
+    UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+    upload_path = UPLOAD_DIR / stored_name
 
-    with open(upload_path, "wb") as buffer:
-        buffer.write(await file.read())
+    with upload_path.open("wb") as buffer:
+        while chunk := await file.read(1024 * 1024):
+            buffer.write(chunk)
 
     return {
         "message": "File uploaded successfully",
-        "filename": file.filename
+        "filename": stored_name,
     }
