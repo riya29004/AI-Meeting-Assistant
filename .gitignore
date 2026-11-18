@@ -21,3 +21,12 @@ dist-ssr
 *.sln
 *.sw?
 .env
+
+# Local meeting data
+backend/data/
+
+__pycache__/
+*.py[cod]
+
+
+backend/.smoke-data/
