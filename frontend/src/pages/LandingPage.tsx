@@ -1,6 +1,7 @@
-import { ArrowDown, ArrowRight, Check, Menu, ShieldCheck, X } from 'lucide-react';
+import { ArrowDown, ArrowRight, Menu, X } from 'lucide-react';
 import { useState } from 'react';
 import Logo from '../components/Logo';
+import ContactSection from '../components/ContactSection';
 import type { Navigate } from '../types';
 
 function scrollToSection(id: string) {
@@ -46,7 +47,6 @@ export default function LandingPage({ navigate }: { navigate: Navigate }) {
               <button className="primary-button" onClick={() => navigate('/app')}>Explore workspace <ArrowRight size={15} /></button>
               <button className="quiet-button" onClick={() => scrollToSection('workflow')}>See how it works <ArrowDown size={14} /></button>
             </div>
-            <div className="trust-line"><span><Check size={13} /> Separate audio sources</span><span><ShieldCheck size={13} /> Human review before assignment</span></div>
           </div>
           <div className="hero-footnote"><span>Designed for meeting hosts and assignees.</span><span className="hero-scroll">Scroll to explore <ArrowDown size={13} /></span></div>
         </section>
@@ -66,7 +66,7 @@ export default function LandingPage({ navigate }: { navigate: Navigate }) {
         <Workflow />
         <Privacy />
         <About />
-        <Contact />
+        <ContactSection />
         <section className="final-cta section-frame">
           <div className="section-kicker">MEETMIND WORKSPACE</div>
           <h2>Make the next meeting<br /><em>easier to act on.</em></h2>
@@ -115,10 +115,6 @@ function About() {
       <div className="about-grid"><h2>Built to make<br />meetings actionable.</h2><div><p>MeetMind explores how transcription and AI can reduce the manual work that follows a meeting.</p><p>Admins review suggested outcomes before assignment. Assignees can see their work, deadlines, and progress in one place.</p></div></div>
     </section>
   );
-}
-
-function Contact() {
-  return <section className="contact-section section-frame" id="contact"><div className="contact-copy"><div className="section-kicker">CONTACT</div><h2>Get in touch.</h2><p>Contact details are not configured for this project yet.</p></div></section>;
 }
 
 function Footer() {

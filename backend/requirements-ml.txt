@@ -1,0 +1,4 @@
+# Local speech-to-text dependency installed with the standard backend requirements.
+faster-whisper>=1.1,<2
+# faster-whisper 1.2.1 calls av.open(metadata_errors=...), removed by PyAV 19.
+av>=11,<19

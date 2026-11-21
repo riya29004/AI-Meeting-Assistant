@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ArrowRight, AudioLines, BarChart3, Check, Circle, Headphones, ShieldCheck, Target, X } from 'lucide-react';
 import CapturePanel from '../components/CapturePanel';
+import TaskWorkspace from '../components/TaskWorkspace';
 import Logo from '../components/Logo';
-import { API_BASE, checkBackend, listMeetings, type MeetingRecord, type MeetingStatistics } from '../services/api';
+import { API_BASE, checkBackend, getCurrentUserEmail, listMeetings, type MeetingRecord, type MeetingStatistics, type MeetingWithTasks } from '../services/api';
 import type { Navigate, Route, WorkspaceRole } from '../types';
 
 type BackendStatus = 'checking' | 'online' | 'offline';
@@ -14,21 +15,26 @@ export default function WorkspacePage({ route, navigate, role, setRole }: {
   setRole: (role: WorkspaceRole) => void;
 }) {
   const [backend, setBackend] = useState<BackendStatus>('checking');
-  const [meetings, setMeetings] = useState<MeetingRecord[] | null>(null);
+  const [meetings, setMeetings] = useState<MeetingWithTasks[] | null>(null);
   const [statistics, setStatistics] = useState<MeetingStatistics | null>(null);
   const [meetingsLoading, setMeetingsLoading] = useState(true);
   const [apiError, setApiError] = useState('');
+  const [userEmail, setUserEmail] = useState('');
+  const [refreshKey, setRefreshKey] = useState(0);
   const isCapture = route === '/capture' || route === '/upload';
   const pageTitle = getPageTitle(route, role);
+  const refreshData = useCallback(async () => { setRefreshKey((key) => key + 1); }, []);
 
   useEffect(() => {
     let active = true;
+    setMeetingsLoading(true);
+    setApiError('');
     checkBackend().then(() => {
       if (active) setBackend('online');
       return listMeetings();
     }).then((result) => {
       if (active) {
-        setMeetings(result.records);
+        setMeetings(result.records as MeetingWithTasks[] | null);
         setStatistics(result.statistics);
       }
     }).catch((reason: unknown) => {
@@ -39,7 +45,13 @@ export default function WorkspacePage({ route, navigate, role, setRole }: {
       if (active) setMeetingsLoading(false);
     });
     return () => { active = false; };
-  }, []);
+  }, [refreshKey]);
+
+  useEffect(() => {
+    let active = true;
+    getCurrentUserEmail().then((email) => { if (active) setUserEmail(email); }).catch(() => { if (active) setUserEmail(''); });
+    return () => { active = false; };
+  }, [backend]);
 
   const isAdminMeetings = role === 'admin' && (route === '/app' || route === '/meetings');
   const pageHeading = isAdminMeetings ? 'Meetings' : isCapture
@@ -100,7 +112,11 @@ export default function WorkspacePage({ route, navigate, role, setRole }: {
 
           {isCapture && role === 'admin'
             ? <CapturePanel backendOnline={backend === 'online'} />
-            : route === '/review' || route === '/tasks' || route === '/analytics'
+              : route === '/review' && role === 'admin'
+                ? <TaskWorkspace mode="review" meetings={meetings} loading={meetingsLoading} error={apiError} role={role} email={userEmail} refresh={refreshData} />
+                : route === '/tasks'
+                  ? <TaskWorkspace mode="tasks" meetings={meetings} loading={meetingsLoading} error={apiError} role={role} email={userEmail} refresh={refreshData} />
+              : route === '/analytics'
               ? <WorkspacePlaceholder route={route} role={role} />
               : role === 'assignee'
                 ? <AssigneeOverview route={route} backend={backend} navigate={navigate} />
@@ -121,7 +137,7 @@ function getPageTitle(route: Route, role: WorkspaceRole) {
 }
 
 function AdminOverview({ meetings, statistics, meetingsLoading }: {
-  meetings: MeetingRecord[] | null;
+  meetings: MeetingWithTasks[] | null;
   statistics: MeetingStatistics | null;
   meetingsLoading: boolean;
 }) {
