@@ -1,13 +1,12 @@
 /** Workspace screens and local audio-capture workflow for MeetMind. */
 import { FormEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { ArrowLeft, CalendarDays, Check, Circle, Download, FileText, Headphones, LoaderCircle, Mic, Play, RefreshCw, Square, Trash2, Wifi, X } from 'lucide-react';
+import { API_BASE as API, apiFetch, audioSocketUrl } from './services/api';
 import './workspace.css';
 
 type Task = { id: string; title: string; assignee: string; due_date: string | null; status: 'needs_review' | 'pending' | 'completed' | 'rejected'; source_text?: string };
 type TranscriptSegment = { start: number; end: number; speaker?: string | null; text: string };
 type Meeting = { id: string; title: string; status: string; created_at: string; started_at?: string; ended_at?: string; transcript?: string; segments?: TranscriptSegment[]; summary?: string; key_points?: string[]; decisions?: string[]; tasks?: Task[]; error?: string };
-const API = `http://${window.location.hostname}:8000`;
-const apiFetch = (input: string, init: RequestInit = {}) => fetch(input, { ...init, credentials: 'include' });
 
 export default function Workspace({ onBack }: { onBack: () => void }) {
   const [meetings, setMeetings] = useState<Meeting[]>([]);
@@ -108,7 +107,7 @@ export default function Workspace({ onBack }: { onBack: () => void }) {
         setStatus('failed'); setError(message); stopCaptureAfterFailure();
         void reloadMeeting(createdMeeting.id);
       };
-      const socket = new WebSocket(`ws://${window.location.hostname}:8000/api/meetings/${createdMeeting.id}/audio`); socketRef.current = socket;
+      const socket = new WebSocket(audioSocketUrl(createdMeeting.id)); socketRef.current = socket;
       socket.onmessage = message => {
         try {
           const data = JSON.parse(message.data);

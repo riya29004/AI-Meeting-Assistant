@@ -11,6 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 from database import initialize_database
 from routes.auth import router as auth_router
+from routes.contact import router as contact_router
 from routes.health import router as health_router
 from routes.meetings import router as meetings_router
 from services.reminders import reminder_worker
@@ -58,6 +59,7 @@ async def shutdown() -> None:
 
 app.include_router(health_router)
 app.include_router(auth_router)
+app.include_router(contact_router)
 app.include_router(meetings_router)
 
 @app.get("/")

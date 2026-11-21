@@ -43,6 +43,8 @@ For summary, key points, decisions, and suggested tasks, configure Groq Cloud in
 
 The backend checks for confirmed pending tasks with a due date. It emails the assignee on the due date and once per day while overdue. The assignee field must contain an email address. The backend must be running for reminders to be sent; reminders are not queued while the computer is off. Configure `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD`, and `SMTP_FROM_EMAIL` in `backend/.env` (Gmail commonly uses `smtp.gmail.com`, port `587`, STARTTLS enabled, and an app password). Reminders stay disabled until an SMTP host and sender are configured. Each email contains only the task title and due date, not the meeting transcript. SMTP credentials are kept in the local backend environment file.
 
+The landing page contact form uses the same SMTP settings to deliver messages to `CONTACT_EMAIL` (set in `backend/.env`; the example is the support address provided for this project). Contact messages are sent by email and are not stored in the database. The form returns an unavailable or delivery error instead of reporting success when email delivery is not configured or fails.
+
 ## Local data and privacy
 
 - SQLite database (when Supabase is not configured): `backend/data/meetmind.sqlite3`
